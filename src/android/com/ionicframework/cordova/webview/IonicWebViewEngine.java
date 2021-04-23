@@ -26,6 +26,9 @@ import org.apache.cordova.engine.SystemWebViewClient;
 import org.apache.cordova.engine.SystemWebViewEngine;
 import org.apache.cordova.engine.SystemWebView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class IonicWebViewEngine extends SystemWebViewEngine {
   public static final String TAG = "IonicWebViewEngine";
 
@@ -87,8 +90,8 @@ public class IonicWebViewEngine extends SystemWebViewEngine {
     if (setAsServiceWorkerClient && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
         controller = ServiceWorkerController.getInstance();
         controller.setServiceWorkerClient(new ServiceWorkerClient(){
-            @Override
-            public WebResourceResponse shouldInterceptRequest(WebResourceRequest request) {
+            @OverrideshouldInterceptRequest
+            public WebResourceResponse (WebResourceRequest request) {
                 return localServer.shouldInterceptRequest(request.getUrl(), request);
             }
         });
@@ -134,6 +137,16 @@ public class IonicWebViewEngine extends SystemWebViewEngine {
 
     @Override
     public WebResourceResponse shouldInterceptRequest(WebView view, WebResourceRequest request) {
+      Log.d(TAG, "Ionic Web View - shouldInterceptRequest before headers");
+
+      Log.d(TAG, request.getRequestHeaders().toString());
+      request.getRequestHeaders().putAll(getCustomHeaders());
+      Log.d(TAG, "Ionic Web View - shouldInterceptRequest added headers");
+      Log.d(TAG, request.getRequestHeaders().toString());
+      Log.d(TAG, request.getMethod());
+      Log.d(TAG, request.getUrl().toString());
+      Log.d(TAG, String.valueOf(request.isForMainFrame()));
+
       return localServer.shouldInterceptRequest(request.getUrl(), request);
     }
 
@@ -169,4 +182,10 @@ public class IonicWebViewEngine extends SystemWebViewEngine {
   public String getServerBasePath() {
     return this.localServer.getBasePath();
   }
+
+  private Map<String, String> getCustomHeaders() {
+    Map<String, String> headers = new HashMap<>();
+    headers.put("mobileorigin-device", "true");
+    return headers;
+    }
 }
