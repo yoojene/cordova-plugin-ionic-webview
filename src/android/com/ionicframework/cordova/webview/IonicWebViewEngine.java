@@ -90,8 +90,8 @@ public class IonicWebViewEngine extends SystemWebViewEngine {
     if (setAsServiceWorkerClient && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
         controller = ServiceWorkerController.getInstance();
         controller.setServiceWorkerClient(new ServiceWorkerClient(){
-            @OverrideshouldInterceptRequest
-            public WebResourceResponse (WebResourceRequest request) {
+            @Override
+            public WebResourceResponse shouldInterceptRequest (WebResourceRequest request) {
                 return localServer.shouldInterceptRequest(request.getUrl(), request);
             }
         });
